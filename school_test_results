@@ -1,0 +1,106 @@
+"Analyzing NYC Public School Test Result Scores" guided project from DataCamp
+
+-- dataset
+
+DROP TABLE schools;
+
+CREATE TABLE schools
+(
+    school_name VARCHAR(100) PRIMARY KEY,
+    borough VARCHAR(100),
+    building_code VARCHAR(10),
+    average_math INT,
+    average_reading INT,
+    average_writing INT,
+    percent_tested FLOAT
+);
+
+\copy schools FROM 'schools_modified.csv' DELIMITER ',' CSV HEADER;
+
+-- Inspecting the data
+
+SELECT *
+FROM schools
+LIMIT 10;
+
+-- Finding missing values
+
+SELECT
+COUNT(*) - COUNT(percent_tested) AS num_tested_missing,
+COUNT(*) AS num_schools
+FROM schools;
+
+-- Schools by building code
+
+SELECT 
+  COUNT(DISTINCT building_code) AS num_school_buildings
+FROM schools;
+
+-- Best schools for math
+
+SELECT 
+    school_name,
+    average_math
+FROM schools
+WHERE average_math >= 640
+ORDER BY average_math DESC;
+
+-- Lowest reading score
+
+SELECT
+    MIN(average_reading) AS lowest_reading
+FROM
+    schools;
+
+-- Best writing school
+
+SELECT 
+    school_name,
+    MAX(average_writing) AS max_writing
+FROM
+    schools
+GROUP BY 
+    school_name
+ORDER BY
+    max_writing DESC
+LIMIT 1;
+
+-- Top 10 schools
+
+SELECT
+    school_name,
+    (average_math + average_reading + average_writing) AS average_sat
+FROM
+    schools
+GROUP BY
+    school_name
+ORDER BY
+    average_sat DESC
+LIMIT 10;
+
+-- Ranking boroughs
+
+SELECT
+    borough,
+    COUNT(*) AS num_schools,
+    SUM(average_math + average_reading + average_writing) / COUNT(*) AS average_borough_sat
+FROM
+    schools
+GROUP BY
+    borough
+ORDER BY average_borough_sat DESC;
+
+-- Brooklyn numbers
+
+SELECT
+    school_name,
+    average_math
+FROM
+    schools
+WHERE
+    borough = 'Brooklyn'
+GROUP BY
+    school_name
+ORDER BY 
+    average_math DESC
+LIMIT 5;
